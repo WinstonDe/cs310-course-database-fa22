@@ -24,7 +24,28 @@ public class Database {
         
         String result = null;
         
-        // INSERT YOUR CODE HERE
+        
+        try{
+            String query = "Select *From section WHERE termid = ? AND subjectid = ? AND num = ?;";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1,termid);
+            pstmt.setString(2,subjectid);
+            pstmt.setString(3,num);
+            
+            boolean hasresults = pstmt.execute();
+            
+            if (hasresults)
+            {
+                ResultSet resultset = pstmt.getResultSet();
+                result = getResultSetAsJSON((ResultSet) resultset);
+            }
+        }
+        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        //places
+        
         
         return result;
         
@@ -34,7 +55,23 @@ public class Database {
         
         int result = 0;
         
-        // INSERT YOUR CODE HERE
+         
+        
+        try{
+            String query = "INSERT INTO registration (studentid, termid, crn) VALUES (?,?,?);";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1,studentid);
+            pstmt.setInt(2,termid);
+            pstmt.setInt(3,crn);
+            
+            
+                result = pstmt.executeUpdate();
+            
+        }
+        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         
         return result;
         
@@ -44,8 +81,22 @@ public class Database {
         
         int result = 0;
         
-        // INSERT YOUR CODE HERE
         
+        
+        try{
+            String query = "DELETE FROM registration WHERE studentid = ? AND termid = ? AND crn = ?;";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1,studentid);
+            pstmt.setInt(2,termid);
+            pstmt.setInt(3,crn);
+            
+            result = pstmt.executeUpdate();
+        
+        }
+        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return result;
         
     }
@@ -54,7 +105,21 @@ public class Database {
         
         int result = 0;
         
-        // INSERT YOUR CODE HERE
+        
+        
+        try{
+            String query = "DELETE FROM registration WHERE studentid = ? AND termid = ?;";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1,studentid);
+            pstmt.setInt(2,termid);
+            
+            result = pstmt.executeUpdate();
+        
+        }
+        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         
         return result;
         
@@ -64,7 +129,25 @@ public class Database {
         
         String result = null;
         
-        // INSERT YOUR CODE HERE
+        
+        
+        try{
+            String query = "SELECT * FROM registration JOIN section on registration.crn = section.crn;";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            
+            boolean hasresults = pstmt.execute();
+            
+            if (hasresults) {
+                ResultSet resultset = pstmt.getResultSet();
+                result = getResultSetAsJSON((ResultSet) resultset);
+            }
+                
+        
+        }
+        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         
         return result;
         
@@ -160,7 +243,21 @@ public class Database {
             ResultSetMetaData metadata = resultset.getMetaData();
             int columnCount = metadata.getColumnCount();
             
-            // INSERT YOUR CODE HERE
+            
+            
+            for (int i = 1; i <= columnCount; ++i) {
+                keys.add(metadata.getColumnLabel(i));
+            }
+            
+            while(resultset.next()) {
+                JSONObject row = new JSONObject();
+                
+                for (int i = 1; i <= columnCount; ++i) {
+                    Object value = resultset.getObject(i);
+                    row.put(keys.get(i - 1), String.valueOf(value));
+                }
+                json.add(row);
+            }
         
         }
         catch (Exception e) { e.printStackTrace(); }
